@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+    </head>
+    <body>
+        <div id="app">
+        <div>
+        <span name="text">{{ displayQuestion }}</span>
+        <input type="button" v-on:click="open" value="あ"></input>
+        <input type="button" v-on:click="open" value="い"></input>
+        <input type="button" v-on:click="open" value="か"></input>
+        <input type="button" v-on:click="open" value="し"></input>
+        <input type="button" v-on:click="open" value="は"></input>
+        <input type="button" v-on:click="open" value="や"></input>
+        </div>
+        <div>
+        <input type="text" name="query" v-model="query"></input>
+        <input type="button" v-on:click="checkAnswer" value="解答する"></input>
+        <span>{{ result }}</span>
+        </div>
+        </div>
+        <script src="js/app.js"></script>
+    </body>
+</html>
+
