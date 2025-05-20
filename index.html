@@ -9,17 +9,17 @@
         <div id="app">
         <div>
         <span name="text">{{ displayQuestion }}</span>
-        <input type="button" v-on:click="open" value="あ"></input>
-        <input type="button" v-on:click="open" value="い"></input>
-        <input type="button" v-on:click="open" value="か"></input>
-        <input type="button" v-on:click="open" value="し"></input>
-        <input type="button" v-on:click="open" value="は"></input>
-        <input type="button" v-on:click="open" value="や"></input>
+        <div v-if="!displayQuestion.includes('クイズ完了！')">
+            <input type="button" v-for="char in availableChars" :key="char" :value="char" v-on:click="open">
+        </div>
         </div>
         <div>
-        <input type="text" name="query" v-model="query"></input>
-        <input type="button" v-on:click="checkAnswer" value="解答する"></input>
-        <span>{{ result }}</span>
+            <div v-if="!displayQuestion.includes('クイズ完了！')">
+                <input type="text" name="query" v-model="query"></input>
+                <input type="button" v-on:click="checkAnswer" value="解答する"></input>
+            </div>
+            <span>{{ result }}</span>
+            <input type="button" v-on:click="nextQuestion" value="次の問題へ" v-if="result.includes('正解') && !displayQuestion.includes('クイズ完了！')"></input>
         </div>
         </div>
         <script src="js/app.js"></script>
