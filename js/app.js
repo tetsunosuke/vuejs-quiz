@@ -1,52 +1,77 @@
 var app = new Vue({
   el: '#app',
   data: {
-    question: "",
+    questions: [],
+    currentQuestion: null,
+    currentQuestionIndex: 0,
     displayQuestion: "",
-    answer:"",
     query: "",
-    result: ""
+    result: "",
+    availableChars: []
   },
   created: function() {
-    var json = {};
-    var question, answer;
-    var j = axios.get("/test.json")
-                 .then(function (res) {
-                     question  = res.data.question;
-                     answer    = res.data.answer;
-
-                     var chars = "";
-                     // すべての文字を伏せ字にする
-                     for (var i=0; i < question.length; i++) {
-                         chars += "■";
-                     }
-                     Vue.set(app, "displayQuestion", chars);
-                     Vue.set(app, "question", question);
-                     Vue.set(app, "answer", answer);
-    });
+    axios.get("/test.json")
+      .then((res) => {
+        this.questions = res.data;
+        this.loadQuestion();
+      });
   },
   methods: {
-      // 解答比較
-      checkAnswer: function() {
-          if (this.query === this.answer) {
-              this.result = "正解";
-          } else {
-              if (this.query.length > 0) {
-                this.result = "不正解";
-              }
-          }
-      },
-      // 隠された文字列からボタンが押された文字をオープンする
-      open: function (e) {
+    loadQuestion: function() {
+      if (this.currentQuestionIndex < this.questions.length) {
+        this.currentQuestion = this.questions[this.currentQuestionIndex];
         var chars = "";
-        for (var i=0; i < this.question.length; i++) {
-            if (this.question[i] === e.target.value) {
-                chars += e.target.value;
-            } else {
-                chars += this.displayQuestion[i];
-            }
+        for (var i = 0; i < this.currentQuestion.question.length; i++) {
+          chars += "■";
         }
         this.displayQuestion = chars;
-      },
+        this.query = "";
+        this.result = "";
+        if (this.currentQuestion && this.currentQuestion.question) {
+          const qChars = this.currentQuestion.question.split('');
+          this.availableChars = [...new Set(qChars)];
+        } else {
+          this.availableChars = [];
+        }
+      } else {
+        this.displayQuestion = "クイズ完了！";
+        this.currentQuestion = { question: '', answer: '' }; // Prevent template errors
+        this.availableChars = [];
+        this.query = "";
+        this.result = "全問正解おめでとうございます！";
+      }
+    },
+    // 解答比較
+    checkAnswer: function() {
+      if (!this.currentQuestion || typeof this.currentQuestion.answer === 'undefined') {
+        this.result = "問題がロードされていません。";
+        return;
+      }
+
+      if (this.query === this.currentQuestion.answer) {
+        this.result = "正解！「次へ」ボタンで次の問題へ進んでください。";
+      } else if (this.query.length === 0) {
+        this.result = "答えを入力してください。";
+      } else {
+        this.result = "不正解です。もう一度試してください。";
+      }
+    },
+    nextQuestion: function() {
+      this.currentQuestionIndex++;
+      this.loadQuestion();
+    },
+    // 隠された文字列からボタンが押された文字をオープンする
+    open: function(e) {
+      if (!this.currentQuestion || !this.currentQuestion.question) return;
+      var chars = "";
+      for (var i = 0; i < this.currentQuestion.question.length; i++) {
+        if (this.currentQuestion.question[i] === e.target.value) {
+          chars += e.target.value;
+        } else {
+          chars += this.displayQuestion[i];
+        }
+      }
+      this.displayQuestion = chars;
+    },
   }
 });
